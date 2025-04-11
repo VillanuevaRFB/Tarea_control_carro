@@ -24,11 +24,42 @@ void direccion(char sentido){
         break;
     }
 }
-
+void izquierda(char giro1){
+    switch(giro1){
+    case 0:
+        PORTD&=~0xF0;//apagar motores
+        break;
+    case 1:
+        PORTD&=~0xF0;//apagar motores
+        PORTD|=0x40;//PD6 en alto
+        break;
+    case 2:
+        PORTD&=~0xF0;//apagar motores
+        PORTD|=0x60;//PD5 y PD6 en alto
+        break;
+    }
+}
+void derecha(char giro2){
+    switch(giro2){
+    case 0:
+        PORTD&=~0xF0;//apagar motores
+        break;
+    case 1:
+        PORTD&=~0xF0;//apagar motores
+        PORTD|=0x80;//PD7 en alto
+        break;
+    case 2:
+        PORTD&=~0xF0;//apagar motores
+        PORTD|=0x90;//PD4 y PD7 en alto
+        break;
+    }
+}
 int main(void){
     config();
-    char sentido=0;//1=adelante, 2=reversa, 0=stop
+    char sentido=0;//0=stop, 1=adelante y 2=reversa
     char previo=1;//estado previo
+    char giro1=0;//0=stop, 1=giro largo izquierda y 2=giro corto izquierda
+    char giro1a=1;//estado previo
     direccion(sentido);//establecer dirección inicial
 
     while(1){
@@ -37,11 +68,22 @@ int main(void){
             if(!(PINB&0x10)){
                 sentido++;
                 if(sentido>2)
-                    sentido=0;
+                sentido=0;
                 direccion(sentido);
-                while (!(PINB&0x10));
+                while(!(PINB&0x10));
                 _delay_ms(50);
             }
-        } 
+        }
+        if(!(PINB&0x20)&&giro1a){
+            _delay_ms(50);
+            if(!(PINB&0x20)){
+                giro1++;
+                if(giro1>2)
+                giro1=0;
+                izquierda(giro1);
+                while(!(PINB&0x20));
+                _delay_ms(50);
+            }
+        }
     }
 }
