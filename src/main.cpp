@@ -5,8 +5,8 @@
 // Configurar entradas y salidas
 void config(void){
     DDRD|=0xF0;//PD4 a PD7 como salidas
-    DDRB&=~0x70;//PB4 a PB6 como entrada
-    PORTB|=0x70;//pull-up
+    DDRB&=~0x07;//PB0 a PB2 como entrada
+    PORTB|=0x07;//pull-up
 }
 //Cambiar dirección del motor
 void direccion(char sentido){
@@ -60,28 +60,43 @@ int main(void){
     char previo=1;//estado previo
     char giro1=0;//0=stop, 1=giro largo izquierda y 2=giro corto izquierda
     char giro1a=1;//estado previo
-    direccion(sentido);//establecer dirección inicial
+    char giro2=0;//0=stop, 1=giro largo derecha y 2=giro corto derecha
+    char giro2a=1;//estado previo
+    direccion(sentido);//establecer valor inicial
+    izquierda(giro1);//establecer valor inicial
+    derecha(giro2);//establecer valor inicial
 
     while(1){
-        if(!(PINB&0x10)&&previo){
+        if(!(PINB&0x01)&&previo){//revisa el estado anterior
             _delay_ms(50);
-            if(!(PINB&0x10)){
+            if(!(PINB&0x01)){
                 sentido++;
                 if(sentido>2)
                 sentido=0;
                 direccion(sentido);
-                while(!(PINB&0x10));
+                while(!(PINB&0x01));
                 _delay_ms(50);
             }
         }
-        if(!(PINB&0x20)&&giro1a){
+        else if(!(PINB&0x02)&&giro1a){//revisa el estado anterior
             _delay_ms(50);
-            if(!(PINB&0x20)){
+            if(!(PINB&0x02)){
                 giro1++;
                 if(giro1>2)
                 giro1=0;
                 izquierda(giro1);
-                while(!(PINB&0x20));
+                while(!(PINB&0x02));
+                _delay_ms(50);
+            }
+        }
+        else if(!(PINB&0x04)&&giro2a){//revisa el estado anterior
+            _delay_ms(50);
+            if(!(PINB&0x04)){
+                giro2++;
+                if(giro2>2)
+                giro2=0;
+                derecha(giro2);
+                while(!(PINB&0x04));
                 _delay_ms(50);
             }
         }
